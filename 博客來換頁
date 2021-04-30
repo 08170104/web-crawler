@@ -1,0 +1,64 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[1]:
+
+
+import requests
+from bs4 import BeautifulSoup
+import shutil
+
+res = requests.get('https://www.books.com.tw/web/books_bmidm_0208/?o=1&v=1&page=1')
+soup = BeautifulSoup(res.text , 'html.parser')
+
+for page in range(1,6):
+    url = 'https://www.books.com.tw/web/books_bmidm_0208/?o=1&v=1&page=x'
+    url = url.replace('x',str(page))
+    for pictures in soup.select('.cover'):
+        fname = pictures['src'].split('/')[-1].split('&')[0]
+        res2 = requests.get(pictures['src'].split('i=')[1].split('&')[0], stream=True)
+        pics = open(fname, 'wb')
+        shutil.copyfileobj(res2.raw, pics)
+        pics.close()
+
+
+# In[4]:
+
+
+pictures['src']
+
+
+# In[17]:
+
+
+import requests
+from bs4 import BeautifulSoup
+import shutil
+
+res = requests.get('https://www.books.com.tw/web/books_bmidm_0208/?o=1&v=1&page=1')
+soup = BeautifulSoup(res.text , 'html.parser')
+
+for times in range(5):
+    res =requests.get(url)
+    soup = BeautifulSoup(res.text, 'html.parser')
+    articles = soup.select('.msg h4')
+    paging = soup.select('.page a')
+    next_url = paging[4]['href']
+    url = next_url
+    price = soup.select('.set2 ')
+    
+    n=0
+    for each_title in articles:
+        a=price[n]
+        print(each_title.text,a.text)
+        
+        n+=1
+               
+      
+ 
+
+
+
+
+
+
