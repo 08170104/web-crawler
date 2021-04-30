@@ -1,0 +1,74 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[2]:
+
+
+import requests, json
+import matplotlib.pyplot as plt
+
+
+# In[13]:
+
+
+url = "https://www.dcard.tw/service/api/v2/forums/dressup/featuredPosts"
+
+res = requests.get(url)
+
+resjson = json.loads(res.text)
+
+
+# In[8]:
+
+
+rejson
+
+
+# In[26]:
+
+
+anonymousDepartment_count = {True:0 , False:0}
+
+
+# In[20]:
+
+
+anonymousDepartment_count
+
+
+# In[29]:
+
+
+for outcome in resjson:
+    anonymousDepartment_count[outcome['anonymousDepartment']] = anonymousDepartment_count[outcome['anonymousDepartment']] +1
+
+
+# In[38]:
+
+
+department = ['科系顯示','科系隱藏']
+
+
+# In[39]:
+
+
+total = [anonymousDepartment_count[True],anonymousDepartment_count[False]]
+
+
+# In[40]:
+
+
+plt.rcParams['font.sans-serif']=['DFKai-SB']
+
+
+# In[41]:
+
+
+plt.bar(department,total)
+
+
+# In[ ]:
+
+
+
+
