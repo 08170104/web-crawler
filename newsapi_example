@@ -1,0 +1,84 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[1]:
+
+
+import requests
+import json
+import pandas as pd
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+
+analyzer = SentimentIntensityAnalyzer()
+sentiment_array = []
+x=0
+#輸入想查詢的資訊
+ts = input("想搜尋的公司為")
+ts1 = input("想搜尋的年分")
+ts2 = input("想搜尋的月份")
+ts3 = input("想搜尋的日期")
+
+#api參數
+url = ('https://newsapi.org/v2/everything?'
+       'q=input&'
+       'pageSize=100&'
+       'from=year-month-day&'
+       'sortBy=popularity&'
+       'language=en&'
+       'apiKey=your_api')
+url = url.replace('input',str(ts))
+url = url.replace('year',str(ts1))
+url = url.replace('month',str(ts2))
+url = url.replace('day',str(ts3))
+response = requests.get(url)
+news_json = json.loads(response.text)
+clean = news_json['articles'][0:]
+
+#  titles1 = [news['title'] for news in clean ]
+# urls1 =[news['url'] for news in clean ]
+# descriptions1 =[news['description'] for news in clean ]
+# content1 =[news['content'] for news in clean ]
+
+for news in clean: 
+    
+    pos = analyzer.polarity_scores(news['title'])["pos"]
+    neu = analyzer.polarity_scores(news['title'])["neu"]
+    neg = analyzer.polarity_scores(news['title'])["neg"]
+    
+    sentiment_array.append({
+                            "date": news['publishedAt'],
+                            "titles": news['title'],
+                            "urls": news['url'],
+                            "descriptions" :news['description'],
+                            "Positive": pos,
+                           "Neutral": neu,
+                           "Negative": neg})
+    
+sentiments_df = pd.DataFrame.from_dict(sentiment_array)
+sentiments_df['date'] = sentiments_df['date'].str.split('T',expand=True)
+sentiments_df
+
+
+# In[13]:
+
+#文字雲
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+descriptions_list = " ".join(list(sentiments_df['descriptions']))
+cloud = WordCloud().generate(descriptions_list)
+# wc = WordCloud(
+#   background_color='black',        #   背景顏色
+#   max_words=200,                   #   最大分詞數量
+#   mask=None,                       #   背景圖片
+#   max_font_size=None,              #   顯示字體的最大值
+#   stopwords=STOPWORDS.add(word),   #   使用內置的屏蔽詞，再添加一個
+#   font_path=font_path,             #   若為中文則需引入中文字型(.TTF)
+#   random_state=None,               #   隨機碼生成各分詞顏色
+#   prefer_horizontal=0.9)           #   調整分詞中水平和垂直的比例
+plt.imshow(cloud)
+plt.axis('off')
+plt.show()
+cloud.to_file('output.png')
+
+
+
